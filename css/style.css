@@ -1,0 +1,30 @@
+table#board {
+    border-spacing: 3px;
+    background-color: black;
+}
+
+table#board td {
+    background: #3CB371;
+    border: 5px black;
+    padding: 6px;
+}
+
+div {
+    height: 70px;
+    width: 70px;
+    border: solid 2px transparent;
+}
+
+div.piece {
+    border: solid 2px black;
+}
+
+div.black {
+    background-color: black;
+    border-radius: 50%;
+}
+
+div.white {
+    background-color: white;
+    border-radius: 50%;
+}
