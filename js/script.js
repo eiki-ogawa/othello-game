@@ -53,6 +53,21 @@ class Othello {
                 div.id = i + "," + j;
                 div.className = "none";
                 td.appendChild(div);
+
+                // 円の追加
+                if (i % 4 == 1 && j % 4 == 1) {
+                    td.className = "under-right";
+                }
+                if (i % 4 == 2 && j % 4 == 1) {
+                    td.className = "top-right";
+                }
+                if (i % 4 == 1 && j % 4 == 2) {
+                    td.className = "under-left";
+                }
+                if (i % 4 == 2 && j % 4 == 2) {
+                    td.className = "top-left";
+                }
+
                 tr.appendChild(td);
             } 
             this.board_element.appendChild(tr);
@@ -68,30 +83,39 @@ class Othello {
                     return false
                 }
                 this.target_piece(x, y).className = this.whitch_turn;
-                var black_count, white_count = this.total_piece_count()
 
-                // 勝敗判定
-                if (black_count == 0) {
-                    alert("白の勝ち！")
-                    return true;
-                } else if (white_count == 0) {
-                    alert("黒の勝ち！")
-                    return true;
-                }
+                // 駒の置ける場所を数える
+                var now_count_places = this.count_places();
 
                 // ターンを変える
                 this.whitch_turn = this.change_color(this.whitch_turn);
                 this.turn_classname(this.whitch_turn)
 
                 // 駒の置ける場所を数える
-                var count_places = this.count_places(this.change_color(this.whitch_turn));
-                if (count_places.length == 0) {
+                var next_count_places = this.count_places();
+
+                if (!next_count_places && now_count_places) {
                     // 置ける場所が無かったらパス
                     alert("パス");
                     // ターンを再度、変える
                     this.whitch_turn = this.change_color(this.whitch_turn);
                     this.turn_classname(this.whitch_turn)
                 }
+                // 数を数える
+                var piece_count = this.total_piece_count();
+                var black_count = piece_count[0];
+                var white_count = piece_count[1];
+
+                if (!next_count_places && !now_count_places) {
+                    if (black_count < white_count) {
+                        alert("白の勝ち！");
+                    } else if (black_count > white_count) {
+                        alert("黒の勝ち！");
+                    } else {
+                        alert("引き分け！");
+                    }
+                }
+
             } else {
                 // クリックしたマスに既に駒が置かれている場合
                 return false;
@@ -161,11 +185,11 @@ class Othello {
         this.black_count.textContent = black_count;
         this.white_count.textContent = white_count;
 
-        return black_count, white_count;
+        return [black_count, white_count];
     }
 
     // 駒の置ける場所を数える
-    count_places(color) {
+    count_places() {
         var can_put = [];
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j ++) {
@@ -176,6 +200,9 @@ class Othello {
                     }
                 }
             }
+        }
+        if (can_put.length == 0) {
+            return false;
         }
         return can_put;
     }

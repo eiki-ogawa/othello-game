@@ -9,6 +9,30 @@ table#board td {
     padding: 6px;
 }
 
+table#board td.top-right {
+    background: 
+        radial-gradient(circle at top -1px right -1px, transparent 7px, #3CB371 0) top right;
+	background-repeat: no-repeat;
+}
+
+table#board td.top-left {
+    background: 
+        radial-gradient(circle at top -1px left -1px, transparent 7px, #3CB371 0) top left;
+	background-repeat: no-repeat;
+}
+
+table#board td.under-right {
+    background: 
+        radial-gradient(circle at bottom -1px right -1px, transparent 7px, #3CB371 0) bottom right;
+	background-repeat: no-repeat;
+}
+
+table#board td.under-left {
+    background: 
+        radial-gradient(circle at bottom -1px left -1px, transparent 7px, #3CB371 0) bottom left;
+	background-repeat: no-repeat;
+}
+
 div {
     height: 70px;
     width: 70px;
