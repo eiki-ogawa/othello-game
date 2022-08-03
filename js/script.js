@@ -4,6 +4,12 @@ class Othello {
         this.board_element = document.getElementById("board");
         // 手番
         this.whitch_turn = "black";
+        // 
+        this.black_result = document.getElementById("black-result");
+        this.white_result = document.getElementById("white-result");
+        // 駒のカウント
+        this.black_count = document.getElementById("black-count");
+        this.white_count = document.getElementById("white-count");
     }
 
     // 駒を指定する
@@ -13,17 +19,17 @@ class Othello {
         } catch {
             return false;
         }
-        return result
+        return result;
     }
 
     // index.html から呼ばれる
     startGame() {
         this.createBoard()
         // 初期配置
-        this.put_piece(3, 3, false)
         this.put_piece(3, 4, false)
-        this.put_piece(4, 4, false)
+        this.put_piece(3, 3, false)
         this.put_piece(4, 3, false)
+        this.put_piece(4, 4, false)
 
         // 盤面がクリックされたら駒を置く
         for (let i = 0; i < 8; i++) {
@@ -55,20 +61,53 @@ class Othello {
 
     // 駒を置く
     put_piece(x, y, check = true) {
-        if (this.target_piece(x, y).className == "none") {
-            var count = this.turn_over(x, y);
-            if (check && count == 0) {
-                return false
+        if (check) {
+            if (this.target_piece(x, y).className == "none") {
+                var count = this.turn_over(x, y);
+                if (count == 0) {
+                    return false
+                }
+                this.target_piece(x, y).className = this.whitch_turn;
+                var black_count, white_count = this.total_piece_count()
+
+                // 勝敗判定
+                if (black_count == 0) {
+                    alert("白の勝ち！")
+                    return true;
+                } else if (white_count == 0) {
+                    alert("黒の勝ち！")
+                    return true;
+                }
+
+                // ターンを変える
+                this.whitch_turn = this.change_color(this.whitch_turn);
+                this.turn_classname(this.whitch_turn)
+
+                // 駒の置ける場所を数える
+                var count_places = this.count_places(this.change_color(this.whitch_turn));
+                if (count_places.length == 0) {
+                    // 置ける場所が無かったらパス
+                    alert("パス");
+                    // ターンを再度、変える
+                    this.whitch_turn = this.change_color(this.whitch_turn);
+                    this.turn_classname(this.whitch_turn)
+                }
+            } else {
+                // クリックしたマスに既に駒が置かれている場合
+                return false;
             }
-            this.target_piece(x, y).className = this.whitch_turn;
-            this.whitch_turn = this.change_color(this.whitch_turn);
         } else {
-            return false;
+            // 駒を置く
+            this.target_piece(x, y).className = this.whitch_turn;
+            var black_count, white_count = this.total_piece_count()
+            // ターンを変える
+            this.whitch_turn = this.change_color(this.whitch_turn);
+            this.turn_classname(this.whitch_turn)
         }
     }
 
     // 駒を返す
-    turn_over(x_basis, y_basis) {
+    turn_over(x_basis, y_basis, check = true) {
         var reverse_count = 0;
         var basis_position = [x_basis, y_basis];
         for (let i = -1; i <= 1; i++) {
@@ -76,8 +115,10 @@ class Othello {
                 if (i == 0 && j == 0) continue;
                 var direction = [i, j];
                 var count = this.turn_piece_check(0, basis_position, direction);
-                for (let k = 1; k <= count; k++) {
-                    this.target_piece(x_basis + i * k, y_basis + j * k).className = this.whitch_turn;
+                if (check) {
+                    for (let k = 1; k <= count; k++) {
+                        this.target_piece(x_basis + i * k, y_basis + j * k).className = this.whitch_turn;
+                    }
                 }
                 reverse_count += count;
             }
@@ -85,6 +126,7 @@ class Othello {
         return reverse_count;
     }
 
+    // 駒を返すチェックを行う
     turn_piece_check(count, basis_position, direction) {
         try {
             var next_position = [basis_position[0] + direction[0], basis_position[1] + direction[1]];
@@ -92,7 +134,6 @@ class Othello {
         } catch {
             return false;
         }
-
         if (next_piece_color == "none") {
             return 0;
         } else if (next_piece_color == this.whitch_turn){
@@ -103,6 +144,42 @@ class Othello {
         return count;
     }
 
+    // 合計の駒数を数える
+    total_piece_count() {
+        var black_count = 0;
+        var white_count = 0;
+
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j ++) {
+                if (this.target_piece(i, j).className == "black") {
+                    black_count += 1;
+                } else if (this.target_piece(i, j).className == "white") {
+                    white_count += 1;
+                }
+            }
+        }
+        this.black_count.textContent = black_count;
+        this.white_count.textContent = white_count;
+
+        return black_count, white_count;
+    }
+
+    // 駒の置ける場所を数える
+    count_places(color) {
+        var can_put = [];
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j ++) {
+                if (this.target_piece(i, j).className == "none") {
+                    var count = this.turn_over(i, j, false);
+                    if (count != 0) {
+                        can_put.push([i, j]);
+                    }
+                }
+            }
+        }
+        return can_put;
+    }
+
     // 白黒を変える
     change_color(target) {
         if (target == "black") {
@@ -111,5 +188,16 @@ class Othello {
             target = "black";
         }
         return target;
+    }
+
+    // 手番を表示するClass名を変える
+    turn_classname(color) {
+        if (color == "black") {
+            this.white_result.className = "result";
+            this.black_result.className = "result selected";
+        } else {
+            this.black_result.className = "result";
+            this.white_result.className = "result selected";
+        }
     }
 }
