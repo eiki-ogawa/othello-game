@@ -20,17 +20,17 @@ class Othello {
     startGame() {
         this.createBoard()
         // 初期配置
-        this.put_piece(3,3)
-        this.put_piece(3,4)
-        this.put_piece(4,4)
-        this.put_piece(4,3)
+        this.put_piece(3, 3, false)
+        this.put_piece(3, 4, false)
+        this.put_piece(4, 4, false)
+        this.put_piece(4, 3, false)
 
         // 盤面がクリックされたら駒を置く
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 this.target_piece(i, j).addEventListener(
                     "click", (e) => this.put_piece(i, j), false
-                    );
+                );
             }
         }
     }
@@ -54,10 +54,17 @@ class Othello {
     }
 
     // 駒を置く
-    put_piece(x, y) {
-        var count = this.turn_over(x, y);
-        this.target_piece(x, y).className = this.whitch_turn;
-        this.whitch_turn = this.change_color(this.whitch_turn);
+    put_piece(x, y, check = true) {
+        if (this.target_piece(x, y).className == "none") {
+            var count = this.turn_over(x, y);
+            if (check && count == 0) {
+                return false
+            }
+            this.target_piece(x, y).className = this.whitch_turn;
+            this.whitch_turn = this.change_color(this.whitch_turn);
+        } else {
+            return false;
+        }
     }
 
     // 駒を返す
@@ -69,7 +76,7 @@ class Othello {
                 if (i == 0 && j == 0) continue;
                 var direction = [i, j];
                 var count = this.turn_piece_check(0, basis_position, direction);
-                for (let k = 0; k <= count; k++) {
+                for (let k = 1; k <= count; k++) {
                     this.target_piece(x_basis + i * k, y_basis + j * k).className = this.whitch_turn;
                 }
                 reverse_count += count;
