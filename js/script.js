@@ -6,6 +6,16 @@ class Othello {
         this.whitch_turn = "black";
     }
 
+    // 駒を指定する
+    target_piece(x, y) {
+        try {
+            var result = document.getElementById(x + "," + y);
+        } catch {
+            return false;
+        }
+        return result
+    }
+
     // index.html から呼ばれる
     startGame() {
         this.createBoard()
@@ -18,7 +28,7 @@ class Othello {
         // 盤面がクリックされたら駒を置く
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
-                document.getElementById(i + " " + j).addEventListener(
+                this.target_piece(i, j).addEventListener(
                     "click", (e) => this.put_piece(i, j), false
                     );
             }
@@ -32,34 +42,67 @@ class Othello {
             for (let j = 0; j < 8; j ++) {
                 var td = document.createElement("td");
                 var div = document.createElement("div");
-                if (i == 3 && j == 3) {
-                    div.className = "piece black";
-                }
-                if (i == 3 && j == 4) {
-                    div.className = "piece white";
-                }
+                
                 // idに座標を入力
-                div.id = i + " " + j
+                div.id = i + "," + j;
+                div.className = "none";
                 td.appendChild(div);
                 tr.appendChild(td);
-            }
+            } 
             this.board_element.appendChild(tr);
         }
     }
 
     // 駒を置く
     put_piece(x, y) {
-        var target_elem = document.getElementById(x + " " + y);
-        target_elem.className = "piece " + this.whitch_turn;
-        this.change_turn()
+        var count = this.turn_over(x, y);
+        this.target_piece(x, y).className = this.whitch_turn;
+        this.whitch_turn = this.change_color(this.whitch_turn);
     }
 
-    // 手番を変える
-    change_turn() {
-        if(this.whitch_turn == "black") {
-            this.whitch_turn = "white";
-        } else {
-            this.whitch_turn = "black";
+    // 駒を返す
+    turn_over(x_basis, y_basis) {
+        var reverse_count = 0;
+        var basis_position = [x_basis, y_basis];
+        for (let i = -1; i <= 1; i++) {
+            for (let j = -1; j <= 1; j++) {
+                if (i == 0 && j == 0) continue;
+                var direction = [i, j];
+                var count = this.turn_piece_check(0, basis_position, direction);
+                for (let k = 0; k <= count; k++) {
+                    this.target_piece(x_basis + i * k, y_basis + j * k).className = this.whitch_turn;
+                }
+                reverse_count += count;
+            }
         }
+        return reverse_count;
+    }
+
+    turn_piece_check(count, basis_position, direction) {
+        try {
+            var next_position = [basis_position[0] + direction[0], basis_position[1] + direction[1]];
+            var next_piece_color = this.target_piece(next_position[0], next_position[1]).className;
+        } catch {
+            return false;
+        }
+
+        if (next_piece_color == "none") {
+            return 0;
+        } else if (next_piece_color == this.whitch_turn){
+            return count;
+        } else {
+            count = this.turn_piece_check(count + 1, next_position, direction);
+        }
+        return count;
+    }
+
+    // 白黒を変える
+    change_color(target) {
+        if (target == "black") {
+            target = "white";
+        } else {
+            target = "black";
+        }
+        return target;
     }
 }
